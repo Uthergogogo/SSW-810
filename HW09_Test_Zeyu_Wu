@@ -1,0 +1,45 @@
+"""
+Tset for HW09
+@author: Zeyu Wu
+Date: 2019-11-03 19:46:38
+"""
+from HW09_Zeyu_Wu import Repository
+from HW08_Zeyu_Wu import file_reading_gen
+import unittest
+
+
+class TestResult(unittest.TestCase):
+    """ test case for HW09 """
+    def test_student_result(self):
+        """ to test whether the value from students.txt is correct """
+        self.assertEqual(list(file_reading_gen("E:/SSW-810B/Stevens/students.txt", 3, sep='\t', header=False)), [('10103', 'Baldwin, C', 'SFEN'), ('10115', 'Wyatt, X', 'SFEN'), ('10172', 'Forbes, I', 'SFEN'), ('10175', 'Erickson, D', 'SFEN'), ('10183', 'Chapman, O', 'SFEN'), ('11399', 'Cordova, I', 'SYEN'), ('11461', 'Wright, U', 'SYEN'), ('11658', 'Kelly, P', 'SYEN'), ('11714', 'Morton, A', 'SYEN'), ('11788', 'Fuller, E', 'SYEN')])
+
+    def test_instructor_result(self):
+        """ to test whether the value from instructor.txt is correct """
+        self.assertEqual(list(file_reading_gen("E:/SSW-810B/Stevens/instructors.txt", 3, sep='\t', header=False)), [('98765', 'Einstein, A', 'SFEN'), ('98764', 'Feynman, R', 'SFEN'), ('98763', 'Newton, I', 'SFEN'), ('98762', 'Hawking, S', 'SYEN'), ('98761', 'Edison, A', 'SYEN'), ('98760', 'Darwin, C', 'SYEN')])
+
+    def test_grades_result(self):
+        """ to test whether the value from grades.txt is correct """
+        self.assertEqual(list(file_reading_gen("E:/SSW-810B/Stevens/grades.txt", 4, sep='\t', header=False)), [('10103', 'SSW 567', 'A', '98765'), ('10103', 'SSW 564',     'A-', '98764'), ('10103', 'SSW 687', 'B', '98764'), ('10103', 'CS 501', 'B', '98764'), ('10115', 'SSW 567', 'A', '98765'), ('10115', 'SSW 564', 'B+', '98764'), ('10115', 'SSW 687', 'A', '98764'), ('10115', 'CS 545', 'A', '98764'), ('10172', 'SSW 555', 'A', '98763'), ('10172', 'SSW 567', 'A-', '98765'), ('10175', 'SSW 567', 'A', '98765'), ('10175', 'SSW 564', 'A', '98764'), ('10175', 'SSW 687', 'B-', '98764'), ('10183', 'SSW 689', 'A', '98763'), ('11399', 'SSW 540', 'B', '98765'), ('11461', 'SYS 800', 'A', '98760'), ('11461', 'SYS 750', 'A-', '98760'), ('11461', 'SYS 611', 'A', '98760'), ('11658', 'SSW 540', 'F', '98765'), ('11714', 'SYS 611', 'A', '98760'), ('11714', 'SYS 645', 'C', '98760'), ('11788', 'SSW 540', 'A', '98765')])
+
+    def test_one_student(self):
+        """ test whether one of the student has the correct attributes """
+        stevens = Repository("E:/SSW-810B/Stevens", willing=False)  # three files from Canvas
+        a = stevens._students['10183']
+        self.assertEqual(a._cwid, '10183')
+        self.assertEqual(a._name, 'Chapman, O')
+        self.assertEqual(a._major, 'SFEN')
+        self.assertEqual(dict(a._course), {'SSW 689': 'A'})
+
+    def test_one_instructor(self):
+        """ test whether one of the instructor has the correct attributes """
+        stevens = Repository("E:/SSW-810B/Stevens", willing=False)  # three files from Canvas
+        a = stevens._instructors['98764']
+        self.assertEqual(a._cwid, '98764')
+        self.assertEqual(a._name, 'Feynman, R')
+        self.assertEqual(a._department, 'SFEN')
+        self.assertEqual(dict(a._courses), {'CS 501': 1, 'CS 545': 1, 'SSW 564': 3, 'SSW 687': 3})
+
+
+if __name__ == '__main__':
+    unittest.main(exit=False, verbosity=2)
