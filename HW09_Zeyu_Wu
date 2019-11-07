@@ -1,0 +1,133 @@
+"""
+HW09
+@author: Zeyu Wu
+Date: 2019-10-29 11:19:15
+"""
+from HW08_Zeyu_Wu import file_reading_gen
+from prettytable import PrettyTable
+from collections import defaultdict
+import os
+
+
+class Student:
+    """ class for student """
+    PT_FIELDS = ['CWID', 'Name', 'Major', 'Courses']
+
+    def __init__(self, cwid, name, major):
+        """ define attributes for student """
+        self._cwid = cwid
+        self._name = name
+        self._major = major
+        self._course = defaultdict(str)  # store grade for the course
+
+    def add_course(self, course, grade):
+        """ add courses and grades for student """
+        self._course[course] += grade
+        return self._course[course]
+
+    def pt_row(self):
+        """ return student information for pt """
+        return [self._cwid, self._name, self._major, sorted(self._course.keys())]
+
+
+class Instructor:
+    """ class for instructor """
+    PT_FIELDS = ['CWID', 'Name', 'Dept', 'Course', 'Students']
+
+    def __init__(self, cwid, name, department):
+        """ define attributes for instructor """
+        self._cwid = cwid
+        self._name = name
+        self._department = department
+        self._courses = defaultdict(int)  # store the number of students in the course
+
+    def add_student_number(self, course):
+        """ add the number of students for each course for instructor """
+        self._courses[course] += 1
+        return self._courses[course]
+
+    def pt_row(self):
+        """ return instructor information for pt """
+        for course, students, in self._courses.items():
+            yield [self._cwid, self._name, self._department, course, students]
+
+
+class Repository:
+    """ class for repository """
+    def __init__(self, path, willing=False):
+        self._students = dict()
+        self._instructors = dict()
+        self._get_student(os.path.join(path, 'students.txt'))
+        self._get_instructor(os.path.join(path, 'instructors.txt'))
+        self._get_grades(os.path.join(path, 'grades.txt'))
+
+        if willing:
+            self.prettytable_student()
+            self.prettytable_instructor()
+
+    def _get_student(self, path):
+        """ get student information """
+        try:
+            for cwid, name, major in file_reading_gen(path, 3, sep='\t', header=False):
+                self._students[cwid] = Student(cwid, name, major)
+        except FileNotFoundError as fnfe:
+            print(fnfe)
+        except ValueError as ve:
+            print(ve)
+
+    def _get_instructor(self, path):
+        """ get instructor information """
+        try:
+            for cwid, name, department in file_reading_gen(path, 3, sep='\t', header=False):
+                self._instructors[cwid] = Instructor(cwid, name, department)
+        except FileNotFoundError as fnfe:
+            print(fnfe)
+        except ValueError as ve:
+            print(ve)
+
+    def _get_grades(self, path):
+        """ get grades from grades.txt """
+        try:
+            for student_cwid, course, grade, instructor_cwid in file_reading_gen(path, 4, sep='\t', header=False):
+                if student_cwid in self._students:
+                    self._students[student_cwid].add_course(course, grade)
+                else:
+                    print(f"Found grade for unknown student {student_cwid}")
+                if instructor_cwid in self._instructors:
+                    self._instructors[instructor_cwid].add_student_number(course)
+                else:
+                    print(f"Found student for unknown instructor {instructor_cwid}")
+        except FileNotFoundError as fnfe:
+            print(fnfe)
+        except ValueError as ve:
+            print(ve)
+
+    def prettytable_student(self):
+        """ use PrettyTable to print student information """
+        pt = PrettyTable()
+        pt.field_names = Student.PT_FIELDS
+        for student in self._students.values():
+            pt.add_row(student.pt_row())
+        print("Student Summary\n", pt)
+
+    def prettytable_instructor(self):
+        """ use PrettyTable to print instructor information """
+        pt = PrettyTable()
+        pt.field_names = Instructor.PT_FIELDS
+        for instructor in self._instructors.values():
+            for row in instructor.pt_row():
+                pt.add_row(row)
+        print("Instructor Summary\n", pt)
+
+
+def main():
+    """ run the code """
+    stevens = Repository("E:/SSW-810B/Stevens", willing=True)  # three files from Canvas
+    print("\n******************************************************\n")  # I know this is not needed, and I'm just separating the results so that you can see more clearly.
+    stevens_test = Repository("E:/SSW-810B/Stevens_test", willing=True)  # I delete instructor.txt to test what will happen
+    print("\n******************************************************\n")  # I know this is not needed, and I'm just separating the results so that you can see more clearly.
+    njit = Repository("E:/SSW-810B/NJIT", willing=True)  # I just copy the three files From Stevens to NJIT folder so the result should be the same
+
+
+if __name__ == '__main__':
+    main()
