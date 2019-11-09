@@ -1,0 +1,41 @@
+"""
+Tset for HW10
+@author: Zeyu Wu
+Date: 2019-11-09 18:44:34
+"""
+from HW10_Zeyu_Wu import Repository
+import unittest
+
+
+class TestResult(unittest.TestCase):
+    """ test case for HW09 """
+
+    def test_one_student(self):
+        """ test whether one of the student has the correct attributes """
+        stevens = Repository("E:/SSW-810B/Stevens", willing=False)
+        a = stevens._students['10183']
+        self.assertEqual(a._cwid, '10183')
+        self.assertEqual(a._name, 'Chapman, O')
+        self.assertEqual(a._major_name, 'SFEN')
+        self.assertEqual(dict(a._course), {'SSW 689': 'A'})
+
+    def test_one_instructor(self):
+        """ test whether one of the instructor has the correct attributes """
+        stevens = Repository("E:/SSW-810B/Stevens", willing=False)
+        a = stevens._instructors['98764']
+        self.assertEqual(a._cwid, '98764')
+        self.assertEqual(a._name, 'Feynman, R')
+        self.assertEqual(a._department, 'SFEN')
+        self.assertEqual(dict(a._courses), {'CS 501': 1, 'CS 545': 1, 'SSW 564': 3, 'SSW 687': 3})
+
+    def test_one_major(self):
+        """ test whether one of the major has the correct attributes """
+        stevens = Repository("E:/SSW-810B/Stevens", willing=False)
+        a = stevens._majors['SFEN']
+        self.assertEqual(a._major, 'SFEN')
+        self.assertEqual(a._required, {'SSW 555', 'SSW 540', 'SSW 567', 'SSW 564'})
+        self.assertEqual(a._electives, {'CS 513', 'CS 545', 'CS 501'})
+
+
+if __name__ == '__main__':
+    unittest.main(exit=False, verbosity=2)
